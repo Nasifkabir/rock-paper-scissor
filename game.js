@@ -4,17 +4,29 @@ const KeyGenerator = require('./KeyGenerator');
 const Rules = require('./Rules');
 const HelpTable = require('./HelpTable');
 
+// Get command line arguments excluding the script name
 const args = process.argv.slice(2);
 
-// Validate the number of arguments
+// Function to check for duplicates string
+const hasDuplicates = (array) => new Set(array).size !== array.length;
+
+// checking the number of arguments
 if (args.length < 3 || args.length % 2 === 0) {
-    console.log('Error: You must provide an odd number of moves greater than or equal to 3.');
-    console.log('Example: node game.js Rock Paper Scissors');
+    console.error('Error: You must provide an odd number of non-repeating moves greater than or equal to 3.');
+    console.error('Example: node game.js Rock Paper Scissors Lizard Spock');
     process.exit(1);
 }
 
-const moves = args;  // We no longer need the --help check here, as help is in the menu.
+// Validate for non-repeating moves
+if (hasDuplicates(args)) {
+    console.error('Error: Moves must be unique.');
+    console.error('Example: node game.js Rock Paper Scissors Lizard Spock');
+    process.exit(1);
+}
 
+const moves = args;
+
+// Generate the key and HMAC
 const key = KeyGenerator.generateKey();
 const computerMoveIndex = Math.floor(Math.random() * moves.length);
 const computerMove = moves[computerMoveIndex];
@@ -48,7 +60,7 @@ const playGame = () => {
     menu();
     rl.question('Enter your move: ', (input) => {
         if (input === '0') {
-            console.log('Goodbye!');
+            console.log('Thank you for playing the game, Goodbye!');
             rl.close();
             return;
         } else if (input.toLowerCase() === 'h') {
